@@ -1,0 +1,53 @@
+﻿@{
+    ViewBag.Title = "Login";
+}
+
+<div class="container mt-5">
+    <div class="row justify-content-center">
+        <div class="col-md-6">
+            <div class="card">
+                <div class="card-header text-center">
+                    <h3 class="card-title">Login</h3>
+                </div>
+                <div class="card-body">
+                    <form asp-action="Login" method="post">
+                        <div class="form-group">
+                            <label for="UserName">Username</label>
+                            <input type="text" class="form-control" id="UserName" name="UserName" placeholder="Enter your username" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="Password">Password</label>
+                            <input type="password" class="form-control" id="Password" name="Password" placeholder="Enter your password" required>
+                        </div>
+                        <button type="submit" class="btn btn-primary btn-block">Login</button>
+                    </form>
+                </div>
+            </div>
+
+            <!-- Redirect logic after login -->
+            @if (ViewBag.IsLoggedIn == false)
+            {
+                <div class="alert alert-warning mt-3 text-center">
+                    You must create a profile first. Redirecting to User Details page...
+                </div>
+                <script>
+                    setTimeout(function () {
+                        window.location.href = '@Url.Action("UserDetails", "User")';
+                    }, 3000); // Redirect after 3 seconds
+                </script>
+            }
+
+            @if (ViewBag.IsProfileComplete == true)
+            {
+                <div class="alert alert-success mt-3 text-center">
+                    Profile created successfully! Redirecting to the All Items Report...
+                </div>
+                <script>
+                    setTimeout(function () {
+                        window.location.href = '@Url.Action("AllItemsReport", "Items")';
+                    }, 3000); // Redirect after 3 seconds
+                </script>
+            }
+        </div>
+    </div>
+</div>
