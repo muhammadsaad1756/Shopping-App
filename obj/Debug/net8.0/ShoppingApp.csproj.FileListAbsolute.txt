@@ -134,3 +134,4 @@ C:\Users\Dell\source\repos\ShoppingApp\ShoppingApp\obj\Debug\net8.0\refint\Shopp
 C:\Users\Dell\source\repos\ShoppingApp\ShoppingApp\obj\Debug\net8.0\ShoppingApp.pdb
 C:\Users\Dell\source\repos\ShoppingApp\ShoppingApp\obj\Debug\net8.0\ShoppingApp.genruntimeconfig.cache
 C:\Users\Dell\source\repos\ShoppingApp\ShoppingApp\obj\Debug\net8.0\ref\ShoppingApp.dll
+C:\Users\Dell\source\repos\ShoppingApp\ShoppingApp\obj\Debug\net8.0\ShoppingApp.sourcelink.json

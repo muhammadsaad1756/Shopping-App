@@ -29,7 +29,7 @@
                             </a>
                             <ul class="dropdown-menu">
                                 <li><a class="dropdown-item" asp-area="" asp-controller="Account" asp-action="Login">Login</a></li>
-                                <li><a class="dropdown-item" asp-area="" asp-controller="Account" asp-action="Details">User Details</a></li>
+                                <li><a class="dropdown-item" asp-area="" asp-controller="Account" asp-action="UserDetails">User Details</a></li>
                             </ul>
                         </li>
                         <li class="nav-item dropdown">
@@ -37,8 +37,8 @@
                                 Sellers
                             </a>
                             <ul class="dropdown-menu">
-                                <li><a class="dropdown-item" href="#">HomePage</a></li>
-                                <li><a class="dropdown-item" href="#">Add/Edit Items</a></li>
+                                <li><a class="dropdown-item" asp-area="" asp-controller="SellersPage" asp-action="UserHomePage">HomePage</a></li>
+                                <li><a class="dropdown-item" asp-area="" asp-controller="SellersPage" asp-action="AddEditItem">Add/Edit Items</a></li>
                             </ul>
                         </li>
                         <li class="nav-item dropdown">
@@ -48,7 +48,8 @@
                             <ul class="dropdown-menu">
                                 <li><a class="dropdown-item" asp-area="" asp-controller="Buyer" asp-action="AllItemsReport">All Items Report</a></li>
                                 <li><a class="dropdown-item" asp-area="" asp-controller="Buyer" asp-action="ViewItem">View Item</a></li>
-                                <li><a class="dropdown-item" href="#">Shopping Cart</a>
+                                <li>
+                                    <a class="dropdown-item" asp-area="" asp-controller="Buyer" asp-action="ShoppingCart">Shopping Cart</a>
                         </li>
                             </ul>
                         </li>

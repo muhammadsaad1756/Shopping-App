@@ -1,4 +1,5 @@
 ﻿using Microsoft.AspNetCore.Mvc;
+using ShoppingApp.Models;
 
 namespace ShoppingApp.Controllers
 {
@@ -11,7 +12,8 @@ namespace ShoppingApp.Controllers
 
         public IActionResult UserHomePage()
         {
-            return View();
+
+            return View(new Item());
         }
     }
 }
