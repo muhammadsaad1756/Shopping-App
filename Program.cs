@@ -11,6 +11,8 @@ builder.Services.AddDbContext<AppDbContext>(options =>
 {
     options.UseSqlServer("Server=DESKTOP-UB4UJGD;Database=TaskDB;Trusted_Connection=True;TrustServerCertificate=True;");
 });
+
+
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.

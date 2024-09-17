@@ -17,27 +17,7 @@
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             base.OnModelCreating(modelBuilder);
-
-            // Configure relationships and constraints if needed
-            modelBuilder.Entity<OrderItem>()
-                .HasOne(oi => oi.Order);
-    
-
-            modelBuilder.Entity<OrderItem>()
-                .HasOne(oi => oi.Item)
-                .WithMany()
-                .HasForeignKey(oi => oi.ItemId);
-
-            modelBuilder.Entity<CartItem>()
-                .HasOne(ci => ci.ShoppingCart)
-                .WithMany(sc => sc.CartItems)
-                .HasForeignKey(ci => ci.ShoppingCartId);
-
-            modelBuilder.Entity<CartItem>()
-                .HasOne(ci => ci.Item)
-                .WithMany()
-                .HasForeignKey(ci => ci.ItemId);
+            // Additional configurations if needed
         }
     }
-
 }

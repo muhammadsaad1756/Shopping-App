@@ -1,5 +1,4 @@
 ﻿@model IEnumerable<ShoppingApp.Models.Item>
-@* @moel ShoppingApp.Models.Buyers *@
 
 <div class="container mt-5">
     <h2 class="mb-4">Items For Sale</h2>
@@ -15,19 +14,26 @@
             </tr>
         </thead>
         <tbody>
-            if(@if (Model != null){
-            @foreach (var items in Model)
+            @if (Model != null && Model.Any())
+            {
+                @foreach (var item in Model)
+                {
+                    <tr>
+                        <td>@item.Name</td>
+                        <td>@item.Price.ToString("C")</td>
+                        <td>@item.QuantityAvailable</td>
+                        <td>
+                            <a href="@Url.Action("AddEditItem", new { id = item.Id })" class="btn btn-warning btn-sm">Edit</a>
+                            <a href="@Url.Action("DeleteItem", new { id = item.Id })" class="btn btn-danger btn-sm">Delete</a>
+                        </td>
+                    </tr>
+                }
+            }
+            else
             {
                 <tr>
-                    <td>@items.Name</td>
-                    <td>@items.Price.ToString("C")</td>
-                    <td>@items.QuantityAvailable</td>
-                    <td>
-                        <a href="@Url.Action("EditItem", new { id = items.Id })" class="btn btn-warning btn-sm">Edit</a>
-                        <a href="@Url.Action("DeleteItem", new { id = items.Id })" class="btn btn-danger btn-sm">Delete</a>
-                    </td>
+                    <td colspan="4" class="text-center">No items for sale.</td>
                 </tr>
-            }
             }
         </tbody>
     </table>
@@ -36,27 +42,5 @@
 
     <hr class="mt-5" />
 
-    <h2 class="mb-4">Report of Users Who Bought From You</h2>
-    @* <!--
-    <!-- Table of Users Who Bought Items -->
-    <table class="table table-striped">
-        <thead class="thead-dark">
-            <tr>
-                <th scope="col">User Name</th>
-                <th scope="col">Total Spent</th>
-            </tr>
-        </thead>
-        <tbody>
-            @foreach (var buyer in Model.Buyers)
-            {
-                <tr>
-                    <td>@buyer.UserName</td>
-                    <td>@buyer.TotalSpent.ToString("C")</td>
-                </tr>
-            }
-        </tbody>
-        --> *@
-    </table>
+    <!-- Add buyer report when available -->
 </div>
-
-

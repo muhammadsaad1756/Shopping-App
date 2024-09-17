@@ -1,5 +1,9 @@
 ﻿@model ShoppingApp.Models.User
 
+@{
+    string roleSelected = Model.Role == "Seller" ? "Seller" : "Buyer";
+}
+
 <div class="container mt-5">
     <div class="row justify-content-center">
         <div class="col-lg-6">
@@ -21,15 +25,34 @@
                             <input type="number" class="form-control" id="Age" name="Age" value="@Model.Age" required>
                         </div>
 
+                        <!-- Role field -->
+<div class="form-group mb-3">
+    <label for="Role" class="form-label">Role</label>
+    <select class="form-control" id="Role" name="Role" required>
+        @{
+            string selectedSeller = roleSelected == "Seller" ? "selected" : "";
+            string selectedBuyer = roleSelected == "Buyer" ? "selected" : "";
+        }
+        <!option value="Seller" @selectedSeller>Seller</!option>
+        <!option value="Buyer" @selectedBuyer>Buyer</!option>
+    </select>
+</div>
+
                         <!-- Profile Picture field -->
                         <div class="form-group mb-3">
                             <label for="ProfilePictureUrl" class="form-label">Profile Picture</label>
                             <input type="file" class="form-control" id="ProfilePictureUrl" name="ProfilePictureUrl" accept="image/*">
-                          @if (Model!=null && !string.IsNullOrEmpty(Model.ProfilePictureUrl))
+
+                            <!-- Display the profile picture if available -->
+                            @if (!string.IsNullOrEmpty(Model.ProfilePictureUrl))
                             {
                                 <div class="mt-3">
                                     <img src="@Model.ProfilePictureUrl" alt="Profile Picture" class="img-fluid rounded-circle" width="150" height="150">
                                 </div>
+                            }
+                            else
+                            {
+                                <p class="text-muted mt-3">No profile picture uploaded yet.</p>
                             }
                         </div>
 
