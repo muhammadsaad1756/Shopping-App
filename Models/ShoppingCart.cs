@@ -4,8 +4,8 @@
     {
         public int Id { get; set; }
         public int UserId { get; set; }
-        public User User { get; set; }
-
+       // public int CartItemId { get; set; }
+        //public int BuyerId { get; set; }
         public ICollection<CartItem> CartItems { get; set; }
 
     }

@@ -1,101 +1,120 @@
 ﻿using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Http;
 using ShoppingApp.Data;
 using ShoppingApp.Models;
 using System.Linq;
+using Microsoft.AspNetCore.Authorization;
+using System.Security.Claims;
 
 namespace ShoppingApp.Controllers
 {
     public class SellersPageController : Controller
     {
         private readonly AppDbContext _context;
+        private readonly IHttpContextAccessor _httpContextAccessor;
 
-        public SellersPageController(AppDbContext context)
+        public SellersPageController(AppDbContext context, IHttpContextAccessor httpContextAccessor)
         {
             _context = context;
+            _httpContextAccessor = httpContextAccessor;
         }
 
+        private int GetLoggedInUserId()
+        {
+            var userIdClaim = User.FindFirst(ClaimTypes.NameIdentifier);
+            return userIdClaim != null && int.TryParse(userIdClaim.Value, out var userId) ? userId : 0;
+        }
+
+        [Authorize(Roles = "Seller")]
         public IActionResult UserHomePage()
         {
-            var userId = 1; // Hardcoded userId for now
+            var userId = GetLoggedInUserId();
+            if (userId == 0)
+            {
+                return RedirectToAction("Login", "Account");
+            }
+
             var itemsForSale = _context.Items.Where(item => item.SellerId == userId).ToList();
             return View(itemsForSale);
         }
 
+        [Authorize(Roles = "Seller")]
         public IActionResult AddEditItem(int? id)
         {
+            var userId = GetLoggedInUserId();
+            if (userId == 0)
+            {
+                return RedirectToAction("Login", "Account");
+            }
+
             if (id == null)
             {
                 return View(new Item());
             }
+
             var item = _context.Items.Find(id);
-            if (item == null)
+            if (item == null || item.SellerId != userId)
             {
                 return NotFound();
             }
+
             return View(item);
         }
+         
 
         [HttpPost]
         public IActionResult SaveItem(Item item)
         {
-            // Ensure model binding is working correctly
-            if (item == null)
+            // Replace this with your method to get the logged-in user's ID
+            var userId = GetLoggedInUserId();
+
+            if (userId == 0)
             {
-                return BadRequest("Invalid item data.");
+                return RedirectToAction("Login", "Account"); // Ensure the user is logged in
             }
 
-            // Check model state for validation errors
-            if (!ModelState.IsValid)
-            {
-                // Return back to the form with the model to show validation errors
-                return View("AddEditItem", item);
-            }
-
-            // Check if the item is a new one (Id = 0) or an existing one
             if (item.Id == 0)
             {
-                // Adding new item
-                _context.Items.Add(item);
+                // Adding a new item
+                item.SellerId = userId; // Set the seller ID to the logged-in user
+                _context.Items.Add(item); // Save new item
             }
             else
             {
-                // Editing existing item
+                // Editing an existing item
                 var existingItem = _context.Items.Find(item.Id);
-                if (existingItem == null)
+
+                if (existingItem == null || existingItem.SellerId != userId)
                 {
-                    return NotFound("Item not found.");
+                    return NotFound(); // Ensure the item belongs to the logged-in seller
                 }
 
-                // Update the existing item with the form values
+                // Update the item details
                 existingItem.Name = item.Name;
                 existingItem.Description = item.Description;
                 existingItem.Price = item.Price;
                 existingItem.QuantityAvailable = item.QuantityAvailable;
-
-                _context.Items.Update(existingItem);
             }
 
             // Save changes to the database
-            try
-            {
-                _context.SaveChanges();
-            }
-            catch (Exception ex)
-            {
-                // Handle any database-related errors
-                ModelState.AddModelError(string.Empty, "Unable to save changes: " + ex.Message);
-                return View("AddEditItem", item);
-            }
-
-            // Redirect back to the user home page after saving
+            _context.SaveChanges();
             return RedirectToAction("UserHomePage");
         }
+
+        // Helper method to get the logged-in user's ID (you need to implement this)
+        
 
 
         public IActionResult DeleteItem(int id)
         {
+            var userId = GetLoggedInUserId();
+            if (userId == 0)
+            {
+                return RedirectToAction("Login", "Account");
+            }
+
             var item = _context.Items.Find(id);
-            if (item != null)
+            if (item != null && item.SellerId == userId)
             {
                 _context.Items.Remove(item);
                 _context.SaveChanges();

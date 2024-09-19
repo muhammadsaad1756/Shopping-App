@@ -4,10 +4,15 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>@ViewBag.Title - ShoppingApp</title>
-    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/5.3.0/css/bootstrap.min.css" integrity="sha384-kenU1KFdBIe4zVF0s0G1M5b4hcpxyD9F7jL+PvQQdEzTT9qV1CB2n5go1vNkt5md" crossorigin="anonymous">
+
+    <!-- Bootstrap CSS -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
+
+    <!-- Custom CSS -->
     <link rel="stylesheet" href="~/css/site.css" />
 </head>
 <body>
+    <!-- Navbar with user role-specific links -->
     <header class="navbar navbar-expand-lg navbar-light bg-light">
         <div class="container">
             <a class="navbar-brand" href="/">ShoppingApp</a>
@@ -18,7 +23,7 @@
                 <ul class="navbar-nav ms-auto">
                     @if (ViewBag.IsLoggedIn == true)
                     {
-                        <!-- Display user info and Logout link -->
+                        <!-- Display user profile and Logout link -->
                         <li class="nav-item">
                             <a class="nav-link" href="/Account/UserDetails">
                                 <img src="@ViewBag.ProfilePictureUrl" class="rounded-circle" alt="User Image" width="40" height="40">
@@ -29,7 +34,7 @@
                             <a class="nav-link" href="/Account/Logout">Logout</a>
                         </li>
 
-                        <!-- Conditional navigation based on user role -->
+                        <!-- Display Seller or Buyer specific links -->
                         @if (ViewBag.UserRole == "Seller")
                         {
                             <li class="nav-item">
@@ -51,12 +56,12 @@
                     }
                     else
                     {
-                        <!-- Display Login link if user is not logged in -->
+                        <!-- Show Login and Register links -->
                         <li class="nav-item">
                             <a class="nav-link" href="/Account/Login">Login</a>
                         </li>
                         <li class="nav-item">
-                            <a class="nav-link" href="/Account/Register">Register</a>
+                            <a class="nav-link" href="/Account/UserDetails">Register</a>
                         </li>
                     }
                 </ul>
@@ -64,17 +69,22 @@
         </div>
     </header>
 
+    <!-- Main content -->
     <div class="container mt-5">
         @RenderBody()
     </div>
 
+    <!-- Footer -->
     <footer class="footer bg-light text-center py-3 mt-5">
         <div class="container">
             <p>&copy; @DateTime.Now.Year - ShoppingApp. All rights reserved.</p>
         </div>
     </footer>
 
+    <!-- Bootstrap JS -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+
+    <!-- Page-specific scripts -->
     @RenderSection("Scripts", required: false)
 </body>
 </html>

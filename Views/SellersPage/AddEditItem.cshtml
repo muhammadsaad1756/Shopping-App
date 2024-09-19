@@ -1,26 +1,34 @@
-﻿<form asp-action="SaveItem" asp-controller="SellersPage" method="post">
+﻿@model ShoppingApp.Models.Item
+
+<h2>@(Model.Id == 0 ? "Add New Item" : "Edit Item")</h2>
+
+<form asp-action="SaveItem" asp-controller="SellersPage" method="post">
     <div class="form-group">
-        <label for="Name">Item Name</label>
-        <input type="text" class="form-control" id="Name" name="Name" value="@Model.Name" required>
+        <label asp-for="Name"></label>
+        <input asp-for="Name" class="form-control" required />
+        <span asp-validation-for="Name" class="text-danger"></span>
+    </div>
+    <div class="form-group">
+        <label asp-for="Description"></label>
+        <textarea asp-for="Description" class="form-control" rows="3" required></textarea>
+        <span asp-validation-for="Description" class="text-danger"></span>
+    </div>
+    <div class="form-group">
+        <label asp-for="Price"></label>
+        <input asp-for="Price" class="form-control" type="number" step="0.01" required />
+        <span asp-validation-for="Price" class="text-danger"></span>
+    </div>
+    <div class="form-group">
+        <label asp-for="QuantityAvailable"></label>
+        <input asp-for="QuantityAvailable" class="form-control" type="number" required />
+        <span asp-validation-for="QuantityAvailable" class="text-danger"></span>
     </div>
 
-    <div class="form-group">
-        <label for="Description">Description</label>
-        <textarea class="form-control" id="Description" name="Description" rows="3" required>@Model.Description</textarea>
-    </div>
+    <!-- Hidden field for the item ID -->
+    <input type="hidden" asp-for="Id" />
 
-    <div class="form-group">
-        <label for="Price">Price</label>
-        <input type="number" class="form-control" id="Price" name="Price" value="@Model.Price" step="0.01" required>
-    </div>
-
-    <div class="form-group">
-        <label for="QuantityAvailable">Quantity Available</label>
-        <input type="number" class="form-control" id="QuantityAvailable" name="QuantityAvailable" value="@Model.QuantityAvailable" required>
-    </div>
-
-    <!-- Ensure the hidden field for the item ID is present -->
-    <input type="hidden" name="Id" value="@Model.Id" />
+    <!-- Hidden field for the seller ID (this value should be assigned in the controller) -->
+    <input type="hidden" asp-for="SellerId" />
 
     <button type="submit" class="btn btn-primary">
         @if (Model.Id == 0)

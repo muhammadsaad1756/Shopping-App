@@ -12,8 +12,8 @@ using ShoppingApp.Data;
 namespace ShoppingApp.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    [Migration("20240916223223_InitialCreate")]
-    partial class InitialCreate
+    [Migration("20240919002237_addedSellersinItem")]
+    partial class addedSellersinItem
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -32,6 +32,9 @@ namespace ShoppingApp.Migrations
                         .HasColumnType("int");
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<int>("BuyerId")
+                        .HasColumnType("int");
 
                     b.Property<int>("ItemId")
                         .HasColumnType("int");
@@ -100,9 +103,12 @@ namespace ShoppingApp.Migrations
                     b.Property<int>("UserId")
                         .HasColumnType("int");
 
+                    b.Property<int?>("UsersId")
+                        .HasColumnType("int");
+
                     b.HasKey("Id");
 
-                    b.HasIndex("UserId");
+                    b.HasIndex("UsersId");
 
                     b.ToTable("Orders");
                 });
@@ -129,10 +135,6 @@ namespace ShoppingApp.Migrations
 
                     b.HasKey("Id");
 
-                    b.HasIndex("ItemId");
-
-                    b.HasIndex("OrderId");
-
                     b.ToTable("OrderItems");
                 });
 
@@ -149,12 +151,10 @@ namespace ShoppingApp.Migrations
 
                     b.HasKey("Id");
 
-                    b.HasIndex("UserId");
-
                     b.ToTable("ShoppingCarts");
                 });
 
-            modelBuilder.Entity("ShoppingApp.Models.User", b =>
+            modelBuilder.Entity("ShoppingApp.Models.Users", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
@@ -180,6 +180,10 @@ namespace ShoppingApp.Migrations
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
+                    b.Property<string>("Role")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
                     b.Property<string>("UserName")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
@@ -197,21 +201,19 @@ namespace ShoppingApp.Migrations
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.HasOne("ShoppingApp.Models.ShoppingCart", "ShoppingCart")
+                    b.HasOne("ShoppingApp.Models.ShoppingCart", null)
                         .WithMany("CartItems")
                         .HasForeignKey("ShoppingCartId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
                     b.Navigation("Item");
-
-                    b.Navigation("ShoppingCart");
                 });
 
             modelBuilder.Entity("ShoppingApp.Models.Item", b =>
                 {
-                    b.HasOne("ShoppingApp.Models.User", "Seller")
-                        .WithMany("ItemsForSale")
+                    b.HasOne("ShoppingApp.Models.Users", "Seller")
+                        .WithMany()
                         .HasForeignKey("SellerId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
@@ -221,43 +223,9 @@ namespace ShoppingApp.Migrations
 
             modelBuilder.Entity("ShoppingApp.Models.Order", b =>
                 {
-                    b.HasOne("ShoppingApp.Models.User", "User")
+                    b.HasOne("ShoppingApp.Models.Users", null)
                         .WithMany("Orders")
-                        .HasForeignKey("UserId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("User");
-                });
-
-            modelBuilder.Entity("ShoppingApp.Models.OrderItem", b =>
-                {
-                    b.HasOne("ShoppingApp.Models.Item", "Item")
-                        .WithMany()
-                        .HasForeignKey("ItemId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.HasOne("ShoppingApp.Models.Order", "Order")
-                        .WithMany()
-                        .HasForeignKey("OrderId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("Item");
-
-                    b.Navigation("Order");
-                });
-
-            modelBuilder.Entity("ShoppingApp.Models.ShoppingCart", b =>
-                {
-                    b.HasOne("ShoppingApp.Models.User", "User")
-                        .WithMany()
-                        .HasForeignKey("UserId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("User");
+                        .HasForeignKey("UsersId");
                 });
 
             modelBuilder.Entity("ShoppingApp.Models.ShoppingCart", b =>
@@ -265,10 +233,8 @@ namespace ShoppingApp.Migrations
                     b.Navigation("CartItems");
                 });
 
-            modelBuilder.Entity("ShoppingApp.Models.User", b =>
+            modelBuilder.Entity("ShoppingApp.Models.Users", b =>
                 {
-                    b.Navigation("ItemsForSale");
-
                     b.Navigation("Orders");
                 });
 #pragma warning restore 612, 618

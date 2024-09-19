@@ -1,4 +1,4 @@
-﻿@model ShoppingApp.Models.User
+﻿@model ShoppingApp.Models.Users
 
 @{
     string roleSelected = Model.Role == "Seller" ? "Seller" : "Buyer";
@@ -9,7 +9,7 @@
         <div class="col-lg-6">
             <div class="card shadow-lg">
                 <div class="card-body">
-                    <h3 class="card-title text-center text-primary mb-4">Edit Profile</h3>
+                    <h3 class="card-title text-center text-primary mb-4">Edit Profile / Register</h3>
 
                     <!-- User Details Form -->
                     <form asp-action="UserDetails" method="post" enctype="multipart/form-data">
@@ -26,18 +26,23 @@
                         </div>
 
                         <!-- Role field -->
-<div class="form-group mb-3">
-    <label for="Role" class="form-label">Role</label>
-    <select class="form-control" id="Role" name="Role" required>
-        @{
-            string selectedSeller = roleSelected == "Seller" ? "selected" : "";
-            string selectedBuyer = roleSelected == "Buyer" ? "selected" : "";
-        }
-        <!option value="Seller" @selectedSeller>Seller</!option>
-        <!option value="Buyer" @selectedBuyer>Buyer</!option>
-    </select>
-</div>
+                        <div class="form-group mb-3">
+                            <label for="Role" class="form-label">Role</label>
+                            <select class="form-control" id="Role" name="Role" required>
+                                @if (roleSelected == "Seller")
+                                {
+                                    <option value="Seller" selected>Seller</option>
+                                    <option value="Buyer">Buyer</option>
+                                }
+                                else
+                                {
+                                    <option value="Seller">Seller</option>
+                                    <option value="Buyer" selected>Buyer</option>
+                                }
+                            </select>
+                        </div>
 
+                       
                         <!-- Profile Picture field -->
                         <div class="form-group mb-3">
                             <label for="ProfilePictureUrl" class="form-label">Profile Picture</label>
@@ -56,16 +61,16 @@
                             }
                         </div>
 
-                        <!-- Username field (read-only) -->
+                        <!-- Username field (read-only for editing, required for registration) -->
                         <div class="form-group mb-3">
                             <label for="UserName" class="form-label">Username</label>
-                            <input type="text" class="form-control" id="UserName" name="UserName" value="@Model.UserName" readonly>
+                            <input type="text" class="form-control" id="UserName" name="UserName" value="@Model.UserName" @(Model.UserName != null ? "readonly" : "required")>
                         </div>
 
                         <!-- Password field -->
                         <div class="form-group mb-3">
-                            <label for="Password" class="form-label">New Password</label>
-                            <input type="password" class="form-control" id="Password" name="Password" placeholder="Leave blank if not changing">
+                            <label for="Password">New Password</label>
+                            <input type="password" class="form-control" id="Password" name="PasswordHash" placeholder="Leave blank if not changing">
                         </div>
 
                         <!-- Submit Button -->

@@ -1,10 +1,37 @@
-﻿@*
-    For more information on enabling MVC for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
-*@
+﻿@model ShoppingApp.Models.Item
+
 @{
+    ViewData["Title"] = "View Item";
 }
-<div class="bg-opacity-10 bg-secondary py-2">
-    <div class="container">
-        <h1>View All Items</h1>
+
+<div class="container mt-5">
+    <div class="row justify-content-center">
+        <div class="col-lg-6">
+            <div class="card shadow-lg">
+                <div class="card-body">
+                    <h3 class="card-title text-center mb-4">Item Details</h3>
+
+                    <!-- Item Details -->
+                    <div class="mb-3">
+                        <h4 class="card-title">@Model.Name</h4>
+                        <p class="card-text"><strong>Price:</strong> @Model.Price.ToString("C")</p>
+                        <p class="card-text"><strong>Quantity Available:</strong> @Model.QuantityAvailable</p>
+                        <p class="card-text"><strong>Description:</strong> @Model.Description</p>
+                    </div>
+
+                    <!-- Add to Cart Form -->
+                    <form asp-action="AddToCart" asp-controller="Buyer" method="post">
+                        <input type="hidden" name="itemId" value="@Model.Id" />
+                        <div class="form-group mb-3">
+                            <label for="Quantity" class="form-label">Quantity</label>
+                            <input type="number" class="form-control" id="Quantity" name="quantity" min="1" max="@Model.QuantityAvailable" required>
+                        </div>
+                        <button type="submit" class="btn btn-primary w-100">Add to Cart</button>
+                    </form>
+
+                    <a href="@Url.Action("AllItemsReport", "Buyer")" class="btn btn-secondary mt-3">Back to All Items</a>
+                </div>
+            </div>
+        </div>
     </div>
 </div>
