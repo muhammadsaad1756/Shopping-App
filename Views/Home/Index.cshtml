@@ -1,8 +1,46 @@
 ﻿@{
-    ViewData["Title"] = "Home Page";
+    ViewBag.Title = "Home";
 }
+<div class="container mt-5 text-center">
+    <h1>Welcome to Shopping App</h1>
+    
+    </div>
+  <div class="container mt-5 ">
+    <div class="row justify-content-center">
+        <div class="col-md-6">
+            <div class="card">
+                <div class="card-header text-center">
+                    <h3 class="card-title">Login</h3>
+                </div>
+                <div class="card-body">
+                    <!-- Login Form -->
+                    <form action="/Account/Login" method="post">
 
-<div class="text-center">
-    <h1 class="display-4">Welcome</h1>
-    <p>Learn about <a href="https://learn.microsoft.com/aspnet/core">building Web apps with ASP.NET Core</a>.</p>
+                        <div class="form-group">
+                            <label for="UserName">Username</label>
+                            <input type="text" class="form-control" id="UserName" name="UserName" placeholder="Enter your username" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="Password">Password</label>
+                            <input type="password" class="form-control" id="Password" name="Password" placeholder="Enter your password" required>
+                        </div>
+                        <button type="submit" class="btn btn-primary btn-block mt-2">Login</button>
+                    </form>
+
+                    <!-- If new user message -->
+                    <div class="text-center mt-3">
+                        <p>If new user, then <a href="/Account/UserDetails">Register here</a></p>
+                    </div>
+
+                    <!-- Error Message for invalid login -->
+                    @if (ViewBag.IsLoggedIn == false)
+                    {
+                        <div class="alert alert-warning mt-3 text-center">
+                            Invalid username or password. Please try again.
+                        </div>
+                    }
+                </div>
+            </div>
+        </div>
+    </div>
 </div>

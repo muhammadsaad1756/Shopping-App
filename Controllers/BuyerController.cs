@@ -5,9 +5,11 @@ using ShoppingApp.Models;
 using System.Linq;
 using System.Threading.Tasks;
 using System.Security.Claims;
+using Microsoft.AspNetCore.Authorization;
 
 namespace ShoppingApp.Controllers
 {
+    [Authorize]
     public class BuyerController : Controller
     {
         private readonly AppDbContext _context;
@@ -16,6 +18,8 @@ namespace ShoppingApp.Controllers
         {
             _context = context;
         }
+
+        //ALL ITEMS REPORT
 
         public IActionResult AllItemsReport(string searchTerm)
         {
@@ -27,13 +31,11 @@ namespace ShoppingApp.Controllers
             }
 
             var model = items.ToList();
-
-            // Pass searchTerm to ViewData for persisting search box value
             ViewData["searchTerm"] = searchTerm;
-
             return View(model);
         }
 
+        //VIEW ITEM
 
         public IActionResult ViewItem(int id)
         {
@@ -45,16 +47,14 @@ namespace ShoppingApp.Controllers
             return View(item);
         }
 
-        // Updated AddToCart action to handle missing ShoppingCart association
+        //ADD TO CART
+
         [HttpPost]
         public IActionResult AddToCart(int itemId, int quantity)
         {
-            var buyerId = int.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier)); // Ensure BuyerId is retrieved
-
-            // Check if a shopping cart exists for this buyer
+            var buyerId = int.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier));
             var shoppingCart = _context.ShoppingCarts.FirstOrDefault(sc => sc.UserId == buyerId);
 
-            // If no shopping cart exists for the buyer, create one
             if (shoppingCart == null)
             {
                 shoppingCart = new ShoppingCart
@@ -62,21 +62,19 @@ namespace ShoppingApp.Controllers
                     UserId = buyerId
                 };
                 _context.ShoppingCarts.Add(shoppingCart);
-                _context.SaveChanges(); // Save changes to generate ShoppingCartId
+                _context.SaveChanges();
             }
 
-            // Retrieve the cart items for the current user
             var cartItem = _context.CartItems
                 .FirstOrDefault(ci => ci.BuyerId == buyerId && ci.ItemId == itemId);
 
-            // Add or update cart item
             if (cartItem == null)
             {
                 cartItem = new CartItem
                 {
                     ItemId = itemId,
                     BuyerId = buyerId,
-                    ShoppingCartId = shoppingCart.Id, // Link to the shopping cart
+                    ShoppingCartId = shoppingCart.Id,
                     Quantity = quantity,
                     TotalPrice = _context.Items.Find(itemId).Price * quantity
                 };
@@ -89,24 +87,25 @@ namespace ShoppingApp.Controllers
                 _context.CartItems.Update(cartItem);
             }
 
-            _context.SaveChanges(); // Save changes to the database
-
+            _context.SaveChanges();
             return RedirectToAction("ShoppingCart");
         }
 
+        //Shopping Cart
+
         public async Task<IActionResult> ShoppingCart()
         {
-            var buyerId = int.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier)); // Ensure BuyerId is retrieved
+            var buyerId = int.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier));
 
-            // Fetch cart items for the buyer, including related Item details
             var cartItems = await _context.CartItems
-                .Include(c => c.Item) // Eager loading of related Item
+                .Include(c => c.Item)
                 .Where(c => c.BuyerId == buyerId)
                 .ToListAsync();
 
             return View(cartItems);
         }
 
+        [HttpPost] // Added this attribute to handle POST requests from the form
         public async Task<IActionResult> RemoveFromCart(int id)
         {
             var cartItem = await _context.CartItems.FindAsync(id);
@@ -114,10 +113,14 @@ namespace ShoppingApp.Controllers
             {
                 _context.CartItems.Remove(cartItem);
                 await _context.SaveChangesAsync();
+
+                // Set TempData message
+                TempData["Message"] = "Item has been removed from your cart.";
             }
 
             return RedirectToAction(nameof(ShoppingCart));
         }
+
 
         public IActionResult Checkout()
         {
@@ -125,3 +128,5 @@ namespace ShoppingApp.Controllers
         }
     }
 }
+
+

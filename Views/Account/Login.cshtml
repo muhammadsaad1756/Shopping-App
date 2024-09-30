@@ -19,18 +19,21 @@
                             <label for="Password">Password</label>
                             <input type="password" class="form-control" id="Password" name="Password" placeholder="Enter your password" required>
                         </div>
-                        <button type="submit" class="btn btn-primary btn-block">Login</button>
+                        <button type="submit" class="btn btn-primary btn-block mt-2">Login</button>
                     </form>
+
+                    <div class="text-center mt-3">
+                        <p>New User? <a href="/Account/UserDetails">Register here</a></p>
+                    </div>
+
+                    @if (ViewBag.IsLoggedIn == false)
+                    {
+                        <div class="alert alert-warning mt-3 text-center">
+                            Invalid username or password. Please try again.
+                        </div>
+                    }
                 </div>
             </div>
-
-            <!-- Redirect logic after login -->
-            @if (ViewBag.IsLoggedIn == false)
-            {
-                <div class="alert alert-warning mt-3 text-center">
-                    Invalid username or password. Please try again.
-                </div>
-            }
         </div>
     </div>
 </div>

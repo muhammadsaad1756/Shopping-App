@@ -1,44 +1,67 @@
-﻿@model ShoppingApp.Models.Item
+﻿@model ShoppingApp.Models.Items
 
-<h2>@(Model.Id == 0 ? "Add New Item" : "Edit Item")</h2>
+<div class="container mt-4">
+    <h2>@(Model.Id == 0 ? "Add New Item" : "Edit Item")</h2>
 
-<form asp-action="SaveItem" asp-controller="SellersPage" method="post">
-    <div class="form-group">
-        <label asp-for="Name"></label>
-        <input asp-for="Name" class="form-control" required />
-        <span asp-validation-for="Name" class="text-danger"></span>
-    </div>
-    <div class="form-group">
-        <label asp-for="Description"></label>
-        <textarea asp-for="Description" class="form-control" rows="3" required></textarea>
-        <span asp-validation-for="Description" class="text-danger"></span>
-    </div>
-    <div class="form-group">
-        <label asp-for="Price"></label>
-        <input asp-for="Price" class="form-control" type="number" step="0.01" required />
-        <span asp-validation-for="Price" class="text-danger"></span>
-    </div>
-    <div class="form-group">
-        <label asp-for="QuantityAvailable"></label>
-        <input asp-for="QuantityAvailable" class="form-control" type="number" required />
-        <span asp-validation-for="QuantityAvailable" class="text-danger"></span>
-    </div>
+    <!-- Display success or info message -->
+    @if (TempData["SuccessMessage"] != null)
+    {
+        <div class="alert alert-success alert-dismissible fade show" role="alert">
+            @TempData["SuccessMessage"]
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+    }
 
-    <!-- Hidden field for the item ID -->
-    <input type="hidden" asp-for="Id" />
+    @if (TempData["InfoMessage"] != null)
+    {
+        <div class="alert alert-info alert-dismissible fade show" role="alert">
+            @TempData["InfoMessage"]
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+    }
 
-    <!-- Hidden field for the seller ID (this value should be assigned in the controller) -->
-    <input type="hidden" asp-for="SellerId" />
+    <!-- Display validation errors if they exist
+      @if (!ViewData.ModelState.IsValid)
+      {
+          <div class="alert alert-danger">
+              <ul>
+                  @foreach (var error in ViewData.ModelState.Values.SelectMany(v => v.Errors))
+                  {
+                      <li>@error.ErrorMessage</li>
+                  }
+              </ul>
+          </div>
+    } -->
 
-    <button type="submit" class="btn btn-primary">
-        @if (Model.Id == 0)
-        {
-            <text>Add Item</text>
-        }
-        else
-        {
-            <text>Save Changes</text>
-        }
-    </button>
-    <a href="@Url.Action("UserHomePage")" class="btn btn-secondary">Cancel</a>
-</form>
+    <form asp-controller="SellersPage" asp-action="SaveItem" method="post">
+        @Html.AntiForgeryToken()
+        <input type="hidden" asp-for="Id" />
+
+        <div class="mb-3">
+            <label asp-for="Name" class="form-label"></label>
+            <input asp-for="Name" class="form-control" />
+            <span asp-validation-for="Name" class="text-danger"></span>
+        </div>
+
+        <div class="mb-3">
+            <label asp-for="Description" class="form-label"></label>
+            <textarea asp-for="Description" class="form-control"></textarea>
+            <span asp-validation-for="Description" class="text-danger"></span>
+        </div>
+
+        <div class="mb-3">
+            <label asp-for="Price" class="form-label"></label>
+            <input asp-for="Price" class="form-control" type="number" step="0.01" />
+            <span asp-validation-for="Price" class="text-danger"></span>
+        </div>
+
+        <div class="mb-3">
+            <label asp-for="QuantityAvailable" class="form-label"></label>
+            <input asp-for="QuantityAvailable" class="form-control" type="number" />
+            <span asp-validation-for="QuantityAvailable" class="text-danger"></span>
+        </div>
+
+        <button type="submit" class="btn btn-primary">Save Changes</button>
+        <a href="@Url.Action("UserHomePage")" class="btn btn-secondary">Cancel</a>
+    </form>
+</div>

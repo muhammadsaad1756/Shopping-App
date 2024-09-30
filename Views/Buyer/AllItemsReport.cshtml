@@ -1,51 +1,94 @@
-﻿@model IEnumerable<ShoppingApp.Models.Item>
+﻿@model IEnumerable<ShoppingApp.Models.Items>
 
 @{
     ViewBag.Title = "All Items Report";
 }
 
 <div class="container mt-4">
-    <h2 class="mb-4">All Items Report</h2>
+    
 
+    <!-- Logout Button -->
+    <div class="text-end mb-3">
+        <a href="@Url.Action("Logout", "Account")" class="btn btn-danger" id="logoutBtn">Logout</a>
+    </div>
+    <h2 class="mb-4">All Items Report</h2>
     <!-- Search Box -->
     <form method="get" action="@Url.Action("AllItemsReport", "Buyer")" class="mb-4">
         <div class="input-group">
             <input type="text" name="searchTerm" class="form-control" value="@ViewData["searchTerm"]" placeholder="Search for items..." aria-label="Search for items">
             <button class="btn btn-outline-secondary" type="submit">Search</button>
+
+            <!-- Clear Search Button -->
+            <a href="@Url.Action("AllItemsReport", "Buyer")" class="btn btn-outline-danger ms-2">Clear Search</a>
         </div>
     </form>
 
     <!-- Items Table -->
-    <table class="table table-striped table-bordered">
-        <thead class="thead-dark">
-            <tr>
-                <th>Item Name</th>
-                <th>Price</th>
-                <th>Quantity Available</th>
-                <th>Action</th>
-            </tr>
-        </thead>
-        <tbody>
-            @if (Model != null && Model.Any())
-            {
-                foreach (var item in Model)
-                {
+
+    <div id="itemsList">
+        @if (Model != null && Model.Any())
+        {
+            <table class="table table-striped table-bordered">
+                <thead class="thead-dark">
                     <tr>
-                        <td>@item.Name</td>
-                        <td>@item.Price.ToString("F2")</td>
-                        <td>@item.QuantityAvailable</td>
-                        <td>
-                            <a href="@Url.Action("ViewItem", "Buyer", new { id = item.Id })" class="btn btn-primary btn-sm">View Item</a>
-                        </td>
+                        <th>Item Name</th>
+                        <th>Price</th>
+                        <th>Quantity Available</th>
+                        <th>Action</th>
                     </tr>
-                }
-            }
-            else
-            {
-                <tr>
-                    <td colspan="4" class="text-center">No items found.</td>
-                </tr>
-            }
-        </tbody>
-    </table>
+                </thead>
+                <tbody>
+                    @foreach (var item in Model)
+                    {
+                        <tr>
+                            <td>@item.Name</td>
+                            <td>@item.Price.ToString("F2")</td>
+                            <td>@item.QuantityAvailable</td>
+                            <td>
+                                <a href="@Url.Action("ViewItem", "Buyer", new { id = item.Id })" class="btn btn-primary btn-sm">View Item</a>
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        }
+        else
+        {
+            <!-- No Items Found Message -->
+            <div id="noItemsMessage" class="alert alert-warning text-center">
+                No items match your search criteria.
+            </div>
+        }
+    </div>
 </div>
+
+<!-- JavaScript for Handling Search Reset and Logout Confirmation -->
+<script>
+    // Handle logout confirmation
+    document.getElementById("logoutBtn").addEventListener("click", function (event) {
+        var confirmed = confirm("Are you sure you want to log out?");
+        if (!confirmed) {
+            event.preventDefault(); // Prevent the logout if user cancels
+        }
+    });
+
+    // Auto-hide the success message after 3 seconds
+    setTimeout(function () {
+        var successMessage = document.getElementById("successMessage");
+        if (successMessage) {
+            successMessage.classList.remove("show");
+            successMessage.classList.add("fade");
+        }
+    }, 2000); // 2 seconds
+
+    // If no items are found, reload the full list after a delay
+    window.onload = function () {
+        var noItemsMessage = document.getElementById("noItemsMessage");
+        if (noItemsMessage) {
+            setTimeout(function () {
+                // Redirect to clear search and show all items again
+                window.location.href = '@Url.Action("AllItemsReport", "Buyer")';
+            }, 4000); // 4 seconds delay
+        }
+    };
+</script>
