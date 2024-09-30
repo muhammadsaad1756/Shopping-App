@@ -8,7 +8,7 @@
         public AppDbContext(DbContextOptions<AppDbContext> options) : base(options) { }
 
         public DbSet<Users> Users { get; set; }
-        public DbSet<Item> Items { get; set; }
+        public DbSet<Items> Items { get; set; }
         public DbSet<Order> Orders { get; set; }
         public DbSet<OrderItem> OrderItems { get; set; }
         public DbSet<ShoppingCart> ShoppingCarts { get; set; }
@@ -16,8 +16,7 @@
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
-            base.OnModelCreating(modelBuilder);
-            // Additional configurations if needed
+            
         }
     }
 }

@@ -7,9 +7,11 @@ using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Authentication;
 using System.Security.Claims;
 using System.Threading.Tasks;
+using Microsoft.AspNetCore.Authorization;
 
 namespace ShoppingApp.Controllers
 {
+    //[Authorize]
     public class AccountController : Controller
     {
         private readonly AppDbContext _context;
@@ -21,45 +23,55 @@ namespace ShoppingApp.Controllers
             _httpContextAccessor = httpContextAccessor;
         }
 
-        // Login action
+        // Login action (GET)
         public IActionResult Login()
         {
             ViewData["Title"] = "Login";
             return View();
         }
 
+        // Login action (POST)
+
         [HttpPost]
         public async Task<IActionResult> Login(string userName, string password)
         {
+            if (string.IsNullOrEmpty(userName) || string.IsNullOrEmpty(password))
+            {
+                ViewBag.ErrorMessage = "Username and Password are required.";
+                return View();
+            }
+
             var user = _context.Users.FirstOrDefault(u => u.UserName == userName && u.PasswordHash == password);
 
             if (user != null)
             {
                 var claims = new List<Claim>
-                {
-                    new Claim(ClaimTypes.NameIdentifier, user.Id.ToString()),
-                    new Claim(ClaimTypes.Name, user.UserName),
-                    new Claim(ClaimTypes.Role, user.Role)
-                };
+        {
+            new Claim(ClaimTypes.NameIdentifier, user.Id.ToString()),
+            new Claim(ClaimTypes.Name, user.UserName),
+            new Claim(ClaimTypes.Role, user.Role)
+        };
 
                 var identity = new ClaimsIdentity(claims, CookieAuthenticationDefaults.AuthenticationScheme);
                 var principal = new ClaimsPrincipal(identity);
 
                 await HttpContext.SignInAsync(CookieAuthenticationDefaults.AuthenticationScheme, principal);
 
-                if (user.Role == "Seller")
-                {
-                    return RedirectToAction("UserHomePage", "SellersPage");
-                }
-                else if (user.Role == "Buyer")
-                {
-                    return RedirectToAction("AllItemsReport", "Buyer");
-                }
+                // Set session values for the logged-in user
+                HttpContext.Session.SetString("UserRole", user.Role);
+                HttpContext.Session.SetString("UserName", user.UserName);
+                HttpContext.Session.SetString("ProfilePictureUrl", user.ProfilePictureUrl ?? "defaultProfilePic.jpg");
+                HttpContext.Session.SetString("IsLoggedIn", "true");
+
+                return user.Role == "Seller"
+                    ? RedirectToAction("UserHomePage", "SellersPage")
+                    : RedirectToAction("AllItemsReport", "Buyer");
             }
 
-            ViewBag.IsLoggedIn = false;
+            ViewBag.ErrorMessage = "Invalid login attempt.";
             return View();
         }
+
 
         // UserDetails action
         public IActionResult UserDetails()
@@ -75,34 +87,56 @@ namespace ShoppingApp.Controllers
         [HttpPost]
         public IActionResult UserDetails(Users model)
         {
+            // Check if user exists by username
             var user = _context.Users.FirstOrDefault(u => u.UserName == model.UserName);
 
             if (user != null)
             {
+                // Update user details
                 user.Name = model.Name;
                 user.Age = model.Age;
-                user.ProfilePictureUrl = string.IsNullOrEmpty(model.ProfilePictureUrl) ? "defaultProfilePic.jpg" : model.ProfilePictureUrl;
-                user.Role = model.Role;
+                user.ProfilePictureUrl = model.ProfilePictureUrl;
+                user.Role = model.Role; // Ensure role is updated as well
                 user.PasswordHash = string.IsNullOrEmpty(model.PasswordHash) ? user.PasswordHash : model.PasswordHash;
                 _context.SaveChanges();
                 ViewBag.IsProfileComplete = true;
-                return RedirectToAction(user.Role == "Seller" ? "UserHomePage" : "AllItemsReport", user.Role == "Seller" ? "SellersPage" : "Buyer");
+                return RedirectToAction("UserHomePage", "SellersPage");
             }
             else
             {
-                model.ProfilePictureUrl = string.IsNullOrEmpty(model.ProfilePictureUrl) ? "defaultProfilePic.jpg" : model.ProfilePictureUrl;
+                // If user doesn't exist, add new user
                 _context.Users.Add(model);
                 _context.SaveChanges();
-                return RedirectToAction(model.Role == "Seller" ? "UserHomePage" : "AllItemsReport", model.Role == "Seller" ? "SellersPage" : "Buyer");
+                return RedirectToAction("UserHomePage", "SellersPage");
             }
         }
+    
 
-        // Logout action
-        public IActionResult Logout()
+        // Logout method
+
+        public async Task<IActionResult> Logout()
         {
-            // Clear the session
-            _httpContextAccessor.HttpContext.Session.Remove("UserId");
+            // Sign out of cookie-based authentication
+            await HttpContext.SignOutAsync(CookieAuthenticationDefaults.AuthenticationScheme);
+
+            // Clear session
+            HttpContext.Session.Clear();
+
+            // Redirect to login page
             return RedirectToAction("Login");
+        }
+
+        // Optional: Access Denied for unauthorized access
+
+        public IActionResult AccessDenied()
+        {
+            return View();
+        }
+
+        // Optional: Method to check if user is logged in (this can be used in other controllers)
+        public bool IsUserLoggedIn()
+        {
+            return HttpContext.Session.GetString("IsLoggedIn") == "true";
         }
     }
 }

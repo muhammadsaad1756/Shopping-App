@@ -8,6 +8,7 @@ using System.Security.Claims;
 
 namespace ShoppingApp.Controllers
 {
+    [Authorize]
     public class SellersPageController : Controller
     {
         private readonly AppDbContext _context;
@@ -19,14 +20,17 @@ namespace ShoppingApp.Controllers
             _httpContextAccessor = httpContextAccessor;
         }
 
+        //GET LOGGED IN USERS
+
         private int GetLoggedInUserId()
         {
             var userIdClaim = User.FindFirst(ClaimTypes.NameIdentifier);
             return userIdClaim != null && int.TryParse(userIdClaim.Value, out var userId) ? userId : 0;
         }
 
-        [Authorize(Roles = "Seller")]
-        public IActionResult UserHomePage()
+        //USER HOME PAGE
+
+        public IActionResult UserHomePage(string searchString)
         {
             var userId = GetLoggedInUserId();
             if (userId == 0)
@@ -34,9 +38,19 @@ namespace ShoppingApp.Controllers
                 return RedirectToAction("Login", "Account");
             }
 
-            var itemsForSale = _context.Items.Where(item => item.SellerId == userId).ToList();
-            return View(itemsForSale);
+            ViewData["CurrentFilter"] = searchString;
+
+            var itemsForSale = _context.Items.Where(item => item.SellerId == userId);
+
+            if (!string.IsNullOrEmpty(searchString))
+            {
+                itemsForSale = itemsForSale.Where(i => i.Name.Contains(searchString) || i.Description.Contains(searchString));
+            }
+
+            return View(itemsForSale.ToList());
         }
+
+        //ADD EDIT ITEM
 
         [Authorize(Roles = "Seller")]
         public IActionResult AddEditItem(int? id)
@@ -49,7 +63,8 @@ namespace ShoppingApp.Controllers
 
             if (id == null)
             {
-                return View(new Item());
+                // If no ID, it's a new item
+                return View(new Items());
             }
 
             var item = _context.Items.Find(id);
@@ -60,50 +75,80 @@ namespace ShoppingApp.Controllers
 
             return View(item);
         }
-         
+
+        //SAVE ITEM
 
         [HttpPost]
-        public IActionResult SaveItem(Item item)
+        [ValidateAntiForgeryToken]
+        public IActionResult SaveItem(Items item)
         {
-            // Replace this with your method to get the logged-in user's ID
             var userId = GetLoggedInUserId();
-
             if (userId == 0)
             {
-                return RedirectToAction("Login", "Account"); // Ensure the user is logged in
+                return RedirectToAction("Login", "Account");
             }
 
-            if (item.Id == 0)
-            {
-                // Adding a new item
-                item.SellerId = userId; // Set the seller ID to the logged-in user
-                _context.Items.Add(item); // Save new item
-            }
-            else
-            {
-                // Editing an existing item
-                var existingItem = _context.Items.Find(item.Id);
+            // Log user ID for debugging
+            Console.WriteLine($"User ID: {userId}");
 
-                if (existingItem == null || existingItem.SellerId != userId)
+            // Assign SellerId
+            item.SellerId = userId;
+
+            // Server-side validation
+            if (!ModelState.IsValid)
+            {
+                // Log model state errors for debugging
+                foreach (var error in ModelState.Values.SelectMany(v => v.Errors))
                 {
-                    return NotFound(); // Ensure the item belongs to the logged-in seller
+                    Console.WriteLine(error.ErrorMessage);
                 }
 
-                // Update the item details
+                // Return view with validation errors to be displayed to the user
+                return View("AddEditItem", item);
+            }
+
+            if (item.Id == 0) // Adding a new item
+            {
+                item.SellerId = userId; // Ensure this is set correctly
+                _context.Items.Add(item);
+            }
+            else // Editing an existing item
+            {
+                var existingItem = _context.Items.Find(item.Id);
+                if (existingItem == null || existingItem.SellerId != userId)
+                {
+                    return NotFound();
+                }
+
+                // Check if any fields are updated
+                bool isUpdated = existingItem.Name != item.Name ||
+                                 existingItem.Description != item.Description ||
+                                 existingItem.Price != item.Price ||
+                                 existingItem.QuantityAvailable != item.QuantityAvailable;
+
+                if (!isUpdated)
+                {
+                    // Log that no changes were made
+                    Console.WriteLine("No changes made to the item.");
+
+                    TempData["InfoMessage"] = "No changes were made to the item.";
+                    return View("AddEditItem", item); // Return the same view without saving
+                }
+
+                // Update fields only if changes were made
                 existingItem.Name = item.Name;
                 existingItem.Description = item.Description;
                 existingItem.Price = item.Price;
                 existingItem.QuantityAvailable = item.QuantityAvailable;
             }
 
-            // Save changes to the database
             _context.SaveChanges();
+            TempData["SuccessMessage"] = item.Id == 0 ? "Item added successfully." : "Item updated successfully.";
+
             return RedirectToAction("UserHomePage");
         }
 
-        // Helper method to get the logged-in user's ID (you need to implement this)
-        
-
+        //DELETE ITEMS
 
         public IActionResult DeleteItem(int id)
         {
@@ -118,7 +163,9 @@ namespace ShoppingApp.Controllers
             {
                 _context.Items.Remove(item);
                 _context.SaveChanges();
+                TempData["SuccessMessage"] = "Item deleted successfully!";
             }
+
             return RedirectToAction("UserHomePage");
         }
     }

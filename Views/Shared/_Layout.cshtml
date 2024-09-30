@@ -7,35 +7,29 @@
 
     <!-- Bootstrap CSS -->
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
-
     <!-- Custom CSS -->
     <link rel="stylesheet" href="~/css/site.css" />
 </head>
 <body>
-    <!-- Navbar with user role-specific links -->
+    <!-- Navbar -->
     <header class="navbar navbar-expand-lg navbar-light bg-light">
         <div class="container">
-            <a class="navbar-brand" href="/">ShoppingApp</a>
+            <!-- ShoppingApp Button redirects based on authentication -->
+            <a class="navbar-brand" href="@Url.Action(User.Identity.IsAuthenticated ? (User.IsInRole("Seller") ? "UserHomePage" : (User.IsInRole("Buyer") ? "AllItemsReport" : "Login")) : "Login", User.Identity.IsAuthenticated ? (User.IsInRole("Seller") ? "SellersPage" : (User.IsInRole("Buyer") ? "Buyer" : "Account")) : "Account")">
+                ShoppingApp
+            </a>
+
             <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
                 <span class="navbar-toggler-icon"></span>
             </button>
+
             <div class="collapse navbar-collapse" id="navbarNav">
                 <ul class="navbar-nav ms-auto">
-                    @if (ViewBag.IsLoggedIn == true)
+                    @if (User.Identity.IsAuthenticated)
                     {
-                        <!-- Display user profile and Logout link -->
-                        <li class="nav-item">
-                            <a class="nav-link" href="/Account/UserDetails">
-                                <img src="@ViewBag.ProfilePictureUrl" class="rounded-circle" alt="User Image" width="40" height="40">
-                                @ViewBag.UserName
-                            </a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link" href="/Account/Logout">Logout</a>
-                        </li>
-
-                        <!-- Display Seller or Buyer specific links -->
-                        @if (ViewBag.UserRole == "Seller")
+                        
+                        <!-- Display Seller or Buyer specific links based on role -->
+                        @if (User.IsInRole("Seller"))
                         {
                             <li class="nav-item">
                                 <a class="nav-link" href="/SellersPage/UserHomePage">My Items</a>
@@ -44,7 +38,7 @@
                                 <a class="nav-link" href="/SellersPage/AddEditItem">Add New Item</a>
                             </li>
                         }
-                        else if (ViewBag.UserRole == "Buyer")
+                        else if (User.IsInRole("Buyer"))
                         {
                             <li class="nav-item">
                                 <a class="nav-link" href="/Buyer/AllItemsReport">All Items</a>
@@ -56,12 +50,9 @@
                     }
                     else
                     {
-                        <!-- Show Login and Register links -->
+                        <!-- Display Login link if not authenticated -->
                         <li class="nav-item">
                             <a class="nav-link" href="/Account/Login">Login</a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link" href="/Account/UserDetails">Register</a>
                         </li>
                     }
                 </ul>
@@ -70,12 +61,12 @@
     </header>
 
     <!-- Main content -->
-    <div class="container mt-5">
+    <div class="container mt-2">
         @RenderBody()
     </div>
 
     <!-- Footer -->
-    <footer class="footer bg-light text-center py-3 mt-5">
+    <footer class="footer bg-light text-center py-3 mt-15">
         <div class="container">
             <p>&copy; @DateTime.Now.Year - ShoppingApp. All rights reserved.</p>
         </div>
